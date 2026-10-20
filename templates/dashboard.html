@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · EduAdapt{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <span class="eyebrow">Student dashboard</span>
+    <h1>{{ greeting }}, {{ current_user.name.split()[0] }}</h1>
+    <p>Here is your learning snapshot for today.</p>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    {% if streak %}<span class="streak">{{ icon('flame') }} {{ streak }}-day streak</span>{% endif %}
+    <a class="btn primary" href="{{ url_for('tests') }}">Take a test {{ icon('arrow') }}</a>
+  </div>
+</div>
+
+<section class="learning-hero" aria-label="Quick learning actions">
+  <div class="hero-glow glow-one"></div><div class="hero-glow glow-two"></div>
+  <div class="learning-copy"><span class="learning-kicker">YOUR NEXT STEP</span><h2>Learn a little. Level up a lot.</h2>
+    <p>Explore clear topic notes, then practise with questions matched to the subject — maths for mathematics and coding-focused practice for DSA.</p>
+    <div class="learning-actions"><a class="btn light" href="{{ url_for('notes') }}">Explore topic notes {{ icon('arrow') }}</a><a class="btn glass" href="{{ url_for('subjects') }}">Choose a topic</a><a class="btn glass" href="{{ url_for('targets') }}">Set WhatsApp reminders</a></div>
+  </div>
+  <div class="learning-art" aria-hidden="true"><div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="float-card card-code"><span> { }</span><b>DSA</b><small>Think · Trace · Code</small></div><div class="float-card card-math"><span>∑</span><b>Math</b><small>Understand · Solve</small></div><div class="float-core">{{ icon('sparkles') }}</div></div>
+</section>
+
+<div class="stats-grid">
+  <div class="stat-card"><div class="stat-ico">{{ icon('test') }}</div><div><span>Tests completed</span><strong>{{ stats.tests }}</strong><small>{{ 'Keep practising' if stats.tests else 'Take your first test' }}</small></div></div>
+  <div class="stat-card"><div class="stat-ico green">{{ icon('award') }}</div><div><span>Average score</span><strong>{{ "%.0f"|format(stats.avg_score) }}%</strong><small>Across all attempts</small></div></div>
+  <div class="stat-card"><div class="stat-ico cyan">{{ icon('target') }}</div><div><span>Active targets</span><strong>{{ active_targets }}</strong><small>{{ 'Stay consistent' if active_targets else 'Set a target' }}</small></div></div>
+  <div class="stat-card"><div class="stat-ico amber">{{ icon('bell') }}</div><div><span>Next reminder</span>
+    <strong>{% if next_reminder %}{{ next_reminder[0].strftime('%H:%M') }}{% else %}--:--{% endif %}</strong>
+    <small>{% if next_reminder %}{{ next_reminder[1]['title'] }}{% else %}No reminders set{% endif %}</small></div></div>
+  <div class="stat-card"><div class="stat-ico cyan">{{ icon('book') }}</div><div><span>Topics completed</span><strong>{{ stats.completed_topics }}</strong><small>Marked complete in notes</small></div></div>
+  <div class="stat-card"><div class="stat-ico green">{{ icon('clock') }}</div><div><span>Tracked study time</span><strong>{{ (stats.learning_minutes // 60) }}h {{ (stats.learning_minutes % 60) }}m</strong><small>From completed topic guides</small></div></div>
+</div>
+
+<div class="dashboard-grid">
+  <section class="panel">
+    <div class="panel-head"><h2>{{ icon('target') }} Current targets</h2><a href="{{ url_for('targets') }}">Manage</a></div>
+    {% if targets %}
+      {% for t in targets %}{% set dl = days_left(t['deadline']) %}
+      <div class="target-item">
+        <div class="target-info"><b>{{ t['title'] }}</b>
+          <small>{{ t['subject_name'] or 'General' }} · {% if dl is none %}Due {{ t['deadline'] }}{% elif dl < 0 %}Overdue by {{ -dl }} day{{ '' if dl == -1 else 's' }}{% elif dl == 0 %}Due today{% else %}{{ dl }} day{{ '' if dl == 1 else 's' }} left{% endif %}</small></div>
+        <div class="target-progress"><span>{{ t['progress'] }}%</span><div class="progress"><i style="width:{{ t['progress'] }}%"></i></div></div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty">{{ icon('target') }}<b>No active targets</b><span>Set a goal to stay on track.</span><a class="link" href="{{ url_for('targets') }}">Create your first target →</a></div>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>{{ icon('zap') }} Focus areas</h2></div>
+    {% if focus %}
+      {% for f in focus %}
+      <a class="focus-item" href="{{ url_for('playlist', topic_id=f['topic_id']) }}">
+        <div class="pct {{ 'mid' if f['avg_score'] >= 50 }}">{{ "%.0f"|format(f['avg_score']) }}%</div>
+        <div><b>{{ f['topic_name'] }}</b><small>{{ f['subject_name'] }}</small></div>{{ icon('arrow') }}
+      </a>
+      {% endfor %}
+    {% else %}
+      <div class="quick-grid">
+        <a href="{{ url_for('tests') }}">{{ icon('test') }} Take a test</a>
+        <a href="{{ url_for('subjects') }}">{{ icon('book') }} Browse syllabus</a>
+        <a href="{{ url_for('targets') }}">{{ icon('target') }} Set a target</a>
+        <a href="{{ url_for('reminders') }}">{{ icon('bell') }} Add reminder</a>
+      </div>
+      <small style="display:block;margin-top:14px">Topics scoring below 75% will appear here with a personalised playlist.</small>
+    {% endif %}
+  </section>
+</div>
+
+<section class="panel">
+  <div class="panel-head"><h2>{{ icon('clock') }} Recent tests</h2><a href="{{ url_for('progress') }}">View all</a></div>
+  {% if attempts %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Topic</th><th>Score</th><th>Level</th><th>Date</th><th></th></tr></thead>
+    <tbody>
+    {% for a in attempts %}
+      <tr>
+        <td><b>{{ a['topic_name'] }}</b><small>{{ a['subject_name'] }}</small></td>
+        <td>{{ a['score'] }}/{{ a['total'] }} <span class="muted">({{ "%.0f"|format(a['percentage']) }}%)</span></td>
+        <td><span class="badge {{ level_class(a['level']) }}">{{ a['level'] }}</span></td>
+        <td class="muted">{{ a['attempted_at']|dt }}</td>
+        <td><a class="link" href="{{ url_for('result', attempt_id=a['id']) }}">Review →</a></td>
+      </tr>
+    {% endfor %}
+    </tbody></table></div>
+  {% else %}
+  <div class="empty">{{ icon('test') }}<b>No tests completed yet</b><span>Choose a topic and take your first assessment.</span><a class="link" href="{{ url_for('tests') }}">Browse tests →</a></div>
+  {% endif %}
+</section>
+{% endblock %}

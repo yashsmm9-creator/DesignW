@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Result · {{ attempt['topic_name'] }} · EduAdapt{% endblock %}
+{% block content %}
+{% set pct = attempt['percentage'] %}
+{% set levels = ['Beginner','Basic','Intermediate','Advanced','Expert'] %}
+<div class="result-hero">
+  <div>
+    <span class="eyebrow">Test complete</span>
+    <h1>{{ attempt['topic_name'] }}</h1>
+    <p>{{ attempt['subject_name'] }} · {{ attempt['attempted_at']|dt }}</p>
+    <div class="result-stats">
+      <span>{{ icon('check') }} {{ attempt['score'] }} correct</span>
+      <span>{{ icon('x') }} {{ attempt['total'] - attempt['score'] }} incorrect</span>
+      <span>{{ icon('clock') }} {{ attempt['time_taken']|duration }}</span>
+    </div>
+  </div>
+  <div class="gauge" aria-label="Score {{ '%.0f'|format(pct) }} percent">
+    <svg viewBox="0 0 150 150"><circle class="bg" cx="75" cy="75" r="64"/><circle class="fg" cx="75" cy="75" r="64"/></svg>
+    <div class="txt"><strong>{{ "%.0f"|format(pct) }}%</strong><span>{{ attempt['score'] }}/{{ attempt['total'] }}</span></div>
+  </div>
+</div>
+
+<div class="result-grid">
+  <div class="panel level-panel">
+    <span class="eyebrow">Your understanding level</span>
+    <div class="big-level">{{ attempt['level'] }}</div>
+    <div class="level-scale">{% for l in levels %}<i class="{{ 'on' if loop.index <= levels.index(attempt['level']) + 1 }}"></i>{% endfor %}</div>
+    <p class="muted">{{ "Start with fundamentals and build confidence." if pct < 40 else "You understand the basics. More practice will strengthen you." if pct < 60 else "Good understanding. Practise application-based questions." if pct < 75 else "Strong understanding. Try advanced problems." if pct < 90 else "Excellent mastery. Challenge yourself with expert problems." }}</p>
+    <a class="btn primary" href="{{ url_for('playlist', topic_id=attempt['topic_id']) }}">View my playlist {{ icon('arrow') }}</a>
+    <a class="btn secondary" href="{{ url_for('take_test', topic_id=attempt['topic_id']) }}">Retake test</a>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h2>Question review</h2><span class="badge neutral">Tap a question to expand</span></div>
+    {% set ns = namespace(wrong=0) %}
+    {% for a in answers %}{% if not a['is_correct'] %}{% set ns.wrong = ns.wrong + 1 %}{% endif %}
+    <details class="review {{ 'correct' if a['is_correct'] else 'wrong' }}" {{ 'open' if not a['is_correct'] and ns.wrong <= 3 }}>
+      <summary><span class="mark">{{ icon('check' if a['is_correct'] else 'x') }}</span><b>{{ loop.index }}. {{ a['question'] }}</b>{{ icon('chev','chev') }}</summary>
+      <div class="review-body">
+        {% if a['answer'] %}<div class="ans {{ 'good' if a['is_correct'] else 'bad' }}"><em>Your answer</em><span>{{ a['answer'] }}. {{ a['option_' ~ (a['answer']|lower)] }}</span></div>
+        {% else %}<div class="ans bad"><em>Your answer</em><span>Not answered</span></div>{% endif %}
+        {% if not a['is_correct'] %}<div class="ans good"><em>Correct</em><span>{{ a['correct'] }}. {{ a['option_' ~ (a['correct']|lower)] }}</span></div>{% endif %}
+        {% if a['explanation'] %}<p class="why">{{ a['explanation'] }}</p>{% endif %}
+      </div>
+    </details>
+    {% endfor %}
+  </div>
+</div>
+
+<section class="panel">
+  <div class="panel-head"><h2>{{ icon('sparkles') }} Playlist based on your result</h2><a href="{{ url_for('playlist', topic_id=attempt['topic_id']) }}">Full playlist</a></div>
+  <p class="adaptive-note">
+    {% if pct < 40 %}Your score is below 40%, so we’re starting with fundamentals before moving to harder material.
+    {% elif pct < 60 %}Your score shows basic understanding, so your playlist combines foundation and intermediate practice.
+    {% elif pct < 75 %}You have an intermediate understanding, so your playlist focuses on application and practice.
+    {% elif pct < 90 %}You have a strong understanding, so your playlist focuses on intermediate-to-advanced problems.
+    {% else %}You have excellent understanding, so beginner content is skipped and the playlist focuses on advanced challenges.{% endif %}
+  </p>
+  <div class="video-grid">
+    {% for v in playlist[:3] %}
+    <a class="video-card" href="{{ v['url'] }}" target="_blank" rel="noopener"><span class="play">{{ icon('play') }}</span><div><b>{{ v['title'] }}</b><small>{{ v['difficulty'] }} · {{ v['description'] }}</small></div></a>
+    {% else %}<div class="empty">No learning resources are available for this topic yet.</div>{% endfor %}
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script>animateGauge({{ attempt['percentage'] }});</script>{% endblock %}

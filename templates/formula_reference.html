@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% block title %}Formula & Syntax Reference · EduAdapt{% endblock %}{% block content %}
+<div class="page-head"><div><span class="eyebrow">Quick revision</span><h1>Formula & syntax reference</h1><p>A compact cross-subject reminder. Open the full topic notes for context, conditions and worked examples.</p></div></div>
+<div class="notes-grid">
+<article class="note-card"><h2>Mathematics</h2><h3>Quadratic equation</h3><pre><code>ax² + bx + c = 0
+a ≠ 0
+x = (-b ± √(b² - 4ac)) / (2a)</code></pre><p>Discriminant: Δ = b² − 4ac. Δ determines the type of real roots.</p><h3>Derivative rules</h3><pre><code>d(xⁿ)/dx = n·xⁿ⁻¹
+ d(c)/dx = 0
+ d(u+v)/dx = u' + v'</code></pre></article>
+<article class="note-card"><h2>DSA & complexity</h2><table><thead><tr><th>Growth</th><th>Typical example</th></tr></thead><tbody><tr><td>O(1)</td><td>Array access by index</td></tr><tr><td>O(log n)</td><td>Binary search on sorted data</td></tr><tr><td>O(n)</td><td>Single traversal</td></tr><tr><td>O(n log n)</td><td>Merge sort</td></tr><tr><td>O(n²)</td><td>Two nested full loops</td></tr></tbody></table><p>These are common examples; actual complexity depends on implementation and input assumptions.</p></article>
+<article class="note-card"><h2>Programming · Python</h2><pre><code>for item in items:
+    print(item)
+
+def add(a, b):
+    return a + b
+
+if condition:
+    do_work()
+else:
+    handle_other_case()</code></pre><p>Indentation defines Python blocks. Validate inputs and test boundary cases.</p></article>
+<article class="note-card"><h2>Machine learning metrics</h2><pre><code>MSE = (1/n) Σ(yᵢ − ŷᵢ)²
+Accuracy = (TP + TN) / (TP + TN + FP + FN)
+Precision = TP / (TP + FP)
+Recall = TP / (TP + FN)</code></pre><p>TP=true positive, TN=true negative, FP=false positive, FN=false negative. Accuracy may be misleading on imbalanced data.</p></article>
+</div>{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}EduAdapt — Adaptive study platform for Computer Engineering{% endblock %}
+
+{% block public_nav %}
+<header class="pub-nav"><div class="inner">
+  <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark">{{ icon('cap') }}</span> EduAdapt</a>
+  <span class="spacer"></span>
+  <nav class="links" aria-label="Site">
+    <a class="plain" href="#how">How it works</a>
+    <a class="plain" href="#features">Features</a>
+    {% if current_user.is_authenticated %}
+      <a class="btn primary small" href="{{ url_for('dashboard') }}">Open dashboard {{ icon('arrow') }}</a>
+    {% else %}
+      <a class="plain" href="{{ url_for('login') }}">Log in</a>
+      <a class="btn primary small" href="{{ url_for('register') }}">Get started</a>
+    {% endif %}
+  </nav>
+</div></header>
+{% endblock %}
+
+{% block content %}
+<section class="hero"><div class="inner">
+  <div>
+    <span class="pill"><b>NEW</b> YOUR NEXT LEVEL STARTS HERE</span>
+    <h1>Learn deeply.<br><span>Level up.</span></h1>
+    <p class="lead">A smarter learning space for curious minds. Master theory, practise topic-wise questions, and build confidence across your Computer Engineering syllabus — one concept at a time.</p>
+    <div class="hero-actions">
+      {% if current_user.is_authenticated %}
+        <a class="btn gradient large" href="{{ url_for('dashboard') }}">Go to dashboard {{ icon('arrow') }}</a>
+      {% else %}
+        <a class="btn gradient large" href="{{ url_for('register') }}">Create free account {{ icon('arrow') }}</a>
+        <a class="btn secondary large" href="{{ url_for('login') }}">Log in</a>
+      {% endif %}
+    </div>
+    <div class="trust">
+      <div><strong>{{ stats.subjects }}</strong><span>Subjects</span></div>
+      <div><strong>{{ stats.topics }}</strong><span>Syllabus topics</span></div>
+      <div><strong>{{ "{:,}".format(stats.questions) }}</strong><span>Practice questions</span></div>
+    </div>
+  </div>
+
+  <div class="preview" aria-label="Sample dashboard preview">
+    <span class="preview-tag">YOUR LEARNING SPACE</span>
+    <div class="preview-top"><span>My learning</span><span class="dots"><i></i><i></i><i></i></span></div>
+    <div class="preview-score">
+      <div class="ring" style="--v:78"><span>78%</span></div>
+      <div><small>OVERALL UNDERSTANDING</small><b>Strong and improving</b><small>+12% over the last 2 weeks</small></div>
+    </div>
+    <div class="mini-grid">
+      <div><small>Data Structures</small><b><span class="badge advanced">Advanced</span></b></div>
+      <div><small>Operating Systems</small><b><span class="badge intermediate">Intermediate</span></b></div>
+      <div><small>DBMS</small><b><span class="badge basic">Basic</span></b></div>
+      <div><small>Study streak</small><b>7 days</b></div>
+    </div>
+    <div class="next-up">{{ icon('sparkles') }}<div><small>Recommended next</small><b>Normalization &amp; Functional Dependencies</b></div></div>
+  </div>
+</div></section>
+
+<section class="section" id="how">
+  <div class="section-head"><span class="eyebrow">How it works</span><h2>Make every study session count.</h2><p>A focused loop that turns practice into progress.</p></div>
+  <div class="steps">
+    <div class="step"><h3>Take a topic test</h3><p>Pick any syllabus topic and answer a focused 10-question assessment with a built-in timer.</p></div>
+    <div class="step"><h3>See your level</h3><p>Your score maps to Beginner, Basic, Intermediate, Advanced or Expert, with a full answer review.</p></div>
+    <div class="step"><h3>Follow your playlist</h3><p>Get learning resources matched to your level, then retest and watch your score climb.</p></div>
+  </div>
+</section>
+
+<section class="section" id="features" style="padding-top:0">
+  <div class="section-head"><span class="eyebrow">Features</span><h2>Built for the way you learn.</h2></div>
+  <div class="features">
+    <div class="feature"><div class="ico">{{ icon('book') }}</div><h3>Complete syllabus</h3><p>Foundations through electives, organised by subject and searchable in one place.</p></div>
+    <div class="feature"><div class="ico">{{ icon('test') }}</div><h3>Adaptive tests</h3><p>Instant scoring, explanations and a clear understanding level for every attempt.</p></div>
+    <div class="feature"><div class="ico">{{ icon('cpu') }}</div><h3>Personal playlists</h3><p>Beginner to advanced resources that change as your scores improve.</p></div>
+    <div class="feature"><div class="ico">{{ icon('target') }}</div><h3>Targets &amp; deadlines</h3><p>Set goals, log progress and see exactly how many days you have left.</p></div>
+    <div class="feature"><div class="ico">{{ icon('bell') }}</div><h3>Voice reminders</h3><p>Repeating study alarms with spoken prompts and browser notifications.</p></div>
+    <div class="feature"><div class="ico">{{ icon('chart') }}</div><h3>Progress analytics</h3><p>Track score trends over time and spot the topics that need attention.</p></div>
+  </div>
+</section>
+
+<section class="cta"><div class="box">
+  <h2>Your next breakthrough is one topic away.</h2>
+  <p>Create your account in under a minute and take your first adaptive test today.</p>
+  <a class="btn large" href="{{ url_for('register') if not current_user.is_authenticated else url_for('dashboard') }}">{{ 'Open dashboard' if current_user.is_authenticated else 'Get started free' }} {{ icon('arrow') }}</a>
+</div></section>
+{% endblock %}
+
+{% block footer %}
+<footer class="footer"><div class="inner"><span>© {{ current_year }} EduAdapt</span><span>Built for Computer Engineering students</span></div></footer>
+{% endblock %}

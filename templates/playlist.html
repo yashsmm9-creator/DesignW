@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ topic['name'] }} playlist · EduAdapt{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><span class="eyebrow">Personalised learning</span><h1>{{ topic['name'] }}</h1><p>{{ topic['subject_name'] }} · learn → practise → test → improve.</p></div>
+  {% if latest %}<span class="badge {{ level_class(latest['level']) }}" style="font-size:.85rem;padding:6px 14px">{{ latest['level'] }} · {{ '%.0f'|format(latest['percentage']) }}%</span>{% endif %}
+</div>
+
+{% if latest %}
+<div class="recommend-banner">{{ icon('sparkles') }}<div><b>Adaptive path for your {{ '%.0f'|format(latest['percentage']) }}% score</b>
+  <span>{% if latest['percentage'] < 40 %}Start with fundamentals.{% elif latest['percentage'] < 60 %}Build basic-to-intermediate understanding.{% elif latest['percentage'] < 75 %}Focus on practice and application.{% elif latest['percentage'] < 90 %}Move into advanced application.{% else %}Challenge yourself with advanced material.{% endif %}</span></div></div>
+{% else %}
+<div class="recommend-banner">{{ icon('info') }}<div><b>Take the test to personalise this playlist</b><span>Until then, all three learning levels are shown.</span></div></div>
+{% endif %}
+
+<div class="playlist">
+  {% for v in videos %}
+  <a class="playlist-item" href="{{ v['url'] }}" target="_blank" rel="noopener">
+    <span class="play">{{ icon('play') }}</span>
+    <div class="playlist-content"><span class="badge {{ level_class(v['difficulty']) }}">Step {{ loop.index }} · {{ v['difficulty'] }}</span><h2>{{ v['title'] }}</h2><p>{{ v['description'] }}</p></div>
+    {{ icon('arrow') }}
+  </a>
+  {% else %}<div class="empty">{{ icon('play') }}<b>No resources found</b></div>{% endfor %}
+</div>
+<a class="btn primary large" href="{{ url_for('take_test', topic_id=topic['id']) }}">{{ 'Retake' if latest else 'Take' }} the 10-question test {{ icon('arrow') }}</a>
+{% endblock %}

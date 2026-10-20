@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Targets · EduAdapt{% endblock %}
+{% block content %}
+<div class="page-head"><div><span class="eyebrow">Goals</span><h1>My study targets</h1><p>Break big goals into consistent daily progress. EduAdapt can send a WhatsApp reminder if today's target is still incomplete.</p></div></div>
+<div class="two-col">
+  <section class="panel">
+    <div class="panel-head"><h2>{{ icon('target') }} Create a target</h2></div>
+    <form method="post" class="form-grid">
+      <div class="field"><label for="title">Target title</label><input id="title" name="title" required maxlength="120" placeholder="Complete DSA Unit 2"></div>
+      <div class="field"><label for="subject_id">Subject</label><select id="subject_id" name="subject_id"><option value="">General</option>{% for s in subjects %}<option value="{{ s['id'] }}">{{ s['name'] }}</option>{% endfor %}</select></div>
+      <div class="cols-3" style="grid-template-columns:1fr 1fr">
+        <div class="field"><label for="deadline">Deadline</label><input id="deadline" type="date" name="deadline" min="{{ today }}" required></div>
+        <div class="field"><label for="daily_minutes">Daily minutes</label><input id="daily_minutes" type="number" name="daily_minutes" value="60" min="5" max="600"></div>
+        <div class="field"><label for="daily_reminder_time">Daily WhatsApp reminder time</label><input id="daily_reminder_time" type="time" name="daily_reminder_time" value="18:00" required><small class="muted">Reminder time uses the timezone configured on the EduAdapt server.</small></div>
+      </div>
+      <button class="btn primary" type="submit">Add target</button>
+    </form>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Your targets</h2><span class="badge neutral">{{ targets|length }} total</span></div>
+    {% if targets %}{% for t in targets %}{% set dl = days_left(t['deadline']) %}{% set done = t['progress'] >= 100 %}
+    <div class="target-card {{ 'done' if done }}">
+      <div class="target-top"><div><b>{{ t['title'] }}</b><div class="target-meta"><span class="badge neutral">{{ t['subject_name'] or 'General' }}</span><span class="badge neutral">{{ icon('clock') }} {{ t['daily_minutes'] }} min/day</span><span class="badge neutral">WhatsApp at {{ t['daily_reminder_time'] or '18:00' }}</span>
+      {% if done %}<span class="badge success">{{ icon('check') }} Overall target completed</span>{% elif dl is none %}<span class="badge neutral">Due {{ t['deadline'] }}</span>{% elif dl < 0 %}<span class="badge danger">Overdue by {{ -dl }}d</span>{% elif dl == 0 %}<span class="badge warn">Due today</span>{% else %}<span class="badge {{ 'warn' if dl <= 3 else 'neutral' }}">{{ icon('calendar') }} {{ dl }} day{{ '' if dl == 1 else 's' }} left</span>{% endif %}
+      </div></div><form method="post" action="{{ url_for('delete_target', target_id=t['id']) }}" onsubmit="return confirm('Delete this target?')"><button class="link-danger" type="submit" aria-label="Delete target">{{ icon('trash') }}</button></form></div>
+      <div class="progress {{ 'ok' if done }}"><i style="width:{{ t['progress'] }}%"></i></div>
+      <div class="daily-completion" style="display:flex;align-items:center;gap:10px;margin:12px 0;flex-wrap:wrap"><button type="button" class="btn secondary small" data-complete-today="{{ t['id'] }}" {% if t['completed_today'] %}disabled{% endif %}>{{ "Completed today ✓" if t['completed_today'] else "Mark today's target complete" }}</button><span class="muted" data-completion-status="{{ t['id'] }}">{{ "Great work — today’s target is complete." if t['completed_today'] else "Complete this after today's study session." }}</span></div>
+      <form method="post" action="{{ url_for('target_progress', target_id=t['id']) }}" class="inline-progress"><input type="range" name="progress" min="0" max="100" step="5" value="{{ t['progress'] }}" data-output="out-{{ t['id'] }}" aria-label="Overall progress"><div style="display:flex;gap:10px;align-items:center"><output id="out-{{ t['id'] }}">{{ t['progress'] }}%</output><button class="btn secondary small" type="submit">Save progress</button></div></form>
+    </div>
+    {% endfor %}{% else %}<div class="empty">{{ icon('target') }}<b>No targets yet</b><span>Create your first target using the form.</span></div>{% endif %}
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll('[data-complete-today]').forEach(button => {
+  button.addEventListener('click', async () => {
+    button.disabled = true;
+    try {
+      const response = await fetch('/targets/' + button.dataset.completeToday + '/complete-today', {method:'POST', credentials:'same-origin'});
+      if (!response.ok) throw new Error('Unable to save completion');
+      button.textContent = 'Completed today ✓';
+      const status = document.querySelector('[data-completion-status="' + button.dataset.completeToday + '"]');
+      if (status) status.textContent = 'Great work — today’s target is complete.';
+    } catch (e) { button.disabled = false; button.textContent = 'Try again'; }
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Topic Notes · EduAdapt{% endblock %}
+{% block content %}
+<div class="page-head"><div><span class="eyebrow">Your study library</span><h1>Notes for every topic</h1><p>Quick revision notes across the complete syllabus. Search by subject or topic, then use the practice prompt to check your understanding.</p></div><a class="btn primary" href="{{ url_for('subjects') }}">Browse syllabus {{ icon('arrow') }}</a></div>
+<div class="toolbar"><div class="input-icon">{{ icon('search') }}<input id="notesSearch" type="search" placeholder="Search all notes…" aria-label="Search notes"></div><span class="count" id="notesCount">{{ notes|length }} topics</span></div>
+<div class="notes-grid" id="notesGrid">
+{% for n in notes %}
+<article class="note-card" data-search="{{ (n.subject ~ ' ' ~ n.topic ~ ' ' ~ n.summary)|lower }}">
+  <div class="note-meta"><span>{{ n.subject }}</span><span class="note-dot"></span><span>Study notes</span></div>
+  <h2><a href="{{ url_for('note_detail', topic_id=n.id) }}">{{ n.topic }}</a></h2><p>{{ n.summary }}</p>{% if n.id in completed %}<span class="count">✓ Completed</span>{% endif %}{% if n.id in saved %}<span class="count">★ Bookmarked</span>{% endif %}
+  <h3>Key points</h3><ul>{% for point in n.points %}<li>{{ point }}</li>{% endfor %}</ul>
+  <div class="practice-prompt"><b>Try this</b><p>{{ n.practice }}</p></div>
+  <div class="note-actions"><a class="btn secondary small" href="{{ url_for('note_detail', topic_id=n.id) }}">Read full guide {{ icon('arrow') }}</a><a class="btn secondary small" href="{{ url_for('playlist', topic_id=n.id) }}">Resources</a><a class="btn primary small" href="{{ url_for('take_test', topic_id=n.id) }}">Practise questions</a></div>
+</article>
+{% endfor %}
+</div>
+<div class="empty" id="notesEmpty" hidden><b>No matching notes</b><span>Try another topic or subject name.</span></div>
+<script>
+(() => { const input=document.getElementById('notesSearch'), cards=[...document.querySelectorAll('.note-card')], count=document.getElementById('notesCount'), empty=document.getElementById('notesEmpty');
+function filter(){const q=input.value.trim().toLowerCase();let shown=0;cards.forEach(card=>{const yes=card.dataset.search.includes(q);card.hidden=!yes;if(yes)shown++;});count.textContent=shown+' topic'+(shown===1?'':'s');empty.hidden=shown!==0;}
+input.addEventListener('input',filter);
+})();
+</script>
+{% endblock %}

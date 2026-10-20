@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Progress · EduAdapt{% endblock %}
+{% block content %}
+{% set pcts = attempts|map(attribute='percentage')|list %}
+<div class="page-head"><div><span class="eyebrow">Analytics</span><h1>Your progress</h1><p>See how your understanding changes over time.</p></div></div>
+
+<div class="stats-grid">
+  <div class="stat-card"><div class="stat-ico">{{ icon('test') }}</div><div><span>Attempts</span><strong>{{ attempts|length }}</strong><small>Total tests taken</small></div></div>
+  <div class="stat-card"><div class="stat-ico green">{{ icon('award') }}</div><div><span>Average score</span><strong>{{ "%.0f"|format((pcts|sum / pcts|length) if pcts else 0) }}%</strong><small>All attempts</small></div></div>
+  <div class="stat-card"><div class="stat-ico amber">{{ icon('zap') }}</div><div><span>Best score</span><strong>{{ "%.0f"|format(pcts|max if pcts else 0) }}%</strong><small>Personal best</small></div></div>
+  <div class="stat-card"><div class="stat-ico cyan">{{ icon('layers') }}</div><div><span>Topics practised</span><strong>{{ topic_summary|length }}</strong><small>Unique topics</small></div></div>
+</div>
+
+<section class="panel chart-panel">
+  <div class="panel-head"><h2>{{ icon('chart') }} Score trend</h2><span class="badge neutral">Oldest → newest</span></div>
+  {% if chart %}<div class="chart-wrap" id="progressChart"></div>
+  {% else %}<div class="empty">{{ icon('chart') }}<b>No data yet</b><span>Complete a test to see your score trend.</span><a class="link" href="{{ url_for('tests') }}">Take a test →</a></div>{% endif %}
+</section>
+
+<div class="two-col">
+  <section class="panel"><div class="panel-head"><h2>Topic performance</h2><small>Weakest first</small></div>
+    <div class="scroll-list">
+    {% for t in topic_summary %}
+    <div class="topic-score">
+      <div><b>{{ t['topic_name'] }}</b><small>{{ t['subject_name'] }} · {{ t['attempts'] }} attempt{{ '' if t['attempts']==1 else 's' }}</small></div>
+      <strong>{{ "%.0f"|format(t['avg_score']) }}%</strong>
+      <div class="progress thin {{ 'ok' if t['avg_score']>=75 else ('bad' if t['avg_score']<50) }}"><i style="width:{{ t['avg_score'] }}%"></i></div>
+    </div>
+    {% else %}<div class="empty">{{ icon('layers') }}<b>Complete a test to see analytics</b></div>{% endfor %}
+    </div></section>
+  <section class="panel"><div class="panel-head"><h2>All attempts</h2><small>Newest first</small></div>
+    <div class="scroll-list">
+    {% for a in attempts %}
+    <div class="history">
+      <div><b>{{ a['topic_name'] }}</b><small>{{ a['attempted_at']|dt }}</small></div>
+      <div style="display:flex;gap:10px;align-items:center"><span class="badge {{ level_class(a['level']) }}">{{ "%.0f"|format(a['percentage']) }}%</span><a class="link" href="{{ url_for('result', attempt_id=a['id']) }}">View</a></div>
+    </div>
+    {% else %}<div class="empty">{{ icon('clock') }}<b>No attempts yet</b></div>{% endfor %}
+    </div></section>
+</div>
+{% endblock %}
+{% block scripts %}{% if chart %}<script>renderChart(document.getElementById('progressChart'), {{ chart|tojson }});</script>{% endif %}{% endblock %}

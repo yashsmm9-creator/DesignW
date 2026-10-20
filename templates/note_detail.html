@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ topic.name }} · EduAdapt Notes{% endblock %}
+{% block content %}
+<div class="page-head"><div><span class="eyebrow">{{ topic.subject_name }} · Study guide</span><h1>{{ topic.name }}</h1><p>{{ note.intro }}</p></div><a class="btn secondary" href="{{ url_for('notes') }}">← All notes</a></div>
+<div class="detail-actions" style="display:flex;gap:.75rem;flex-wrap:wrap;margin:1rem 0 1.5rem">
+<form method="post" action="{{ url_for('toggle_bookmark',topic_id=topic.id) }}"><button class="btn secondary" type="submit">{{ '★ Remove bookmark' if bookmarked else '☆ Save bookmark' }}</button></form>
+<form method="post" action="{{ url_for('toggle_topic_complete',topic_id=topic.id) }}"><button class="btn primary" type="submit">{{ '↺ Mark for revision' if completed else '✓ Mark topic complete' }}</button></form>
+<a class="btn secondary" href="{{ url_for('take_test',topic_id=topic.id) }}">Practice this topic →</a>
+</div>
+<div class="notes-grid detail-grid">
+<article class="note-card"><h2>1. Introduction</h2><p>{{ note.intro }}</p><h3>Learning objectives</h3><ul>{% for x in note.objectives %}<li>{{ x }}</li>{% endfor %}</ul><h3>Prerequisites</h3><ul>{% for x in note.prerequisites %}<li>{{ x }}</li>{% endfor %}</ul></article>
+<article class="note-card"><h2>2. Complete theory & key concepts</h2><ul>{% for x in note.theory %}<li>{{ x }}</li>{% endfor %}</ul><h3>Important definitions</h3><ul>{% for x in note.definitions %}<li>{{ x }}</li>{% endfor %}</ul></article>
+<article class="note-card"><h2>3. Formulas and technical rules</h2><ul>{% for x in note.formulas %}<li>{{ x }}</li>{% endfor %}</ul><h3>Syntax / notation</h3><ul>{% for x in note.syntax %}<li>{{ x }}</li>{% endfor %}</ul></article>
+<article class="note-card"><h2>4. Step-by-step worked method</h2><p>{{ note.worked }}</p><h3>Implementation / solution template</h3><pre><code>{{ note.code }}</code></pre></article>
+<article class="note-card"><h2>5. Comparisons</h2><ul>{% for x in note.comparisons %}<li>{{ x }}</li>{% endfor %}</ul><h3>Advantages</h3><ul>{% for x in note.advantages %}<li>{{ x }}</li>{% endfor %}</ul><h3>Limitations</h3><ul>{% for x in note.limitations %}<li>{{ x }}</li>{% endfor %}</ul></article>
+<article class="note-card"><h2>6. Applications and common mistakes</h2><h3>Applications</h3><ul>{% for x in note.applications %}<li>{{ x }}</li>{% endfor %}</ul><h3>Common mistakes</h3><ul>{% for x in note.mistakes %}<li>{{ x }}</li>{% endfor %}</ul></article>
+<article class="note-card"><h2>7. Exam questions and practice</h2><h3>Important exam questions</h3><ul>{% for x in note.exam %}<li>{{ x }}</li>{% endfor %}</ul><h3>Practice by difficulty</h3><ul>{% for x in note.practice %}<li>{{ x }}</li>{% endfor %}</ul></article>
+<article class="note-card"><h2>8. Quick revision</h2><ul>{% for x in note.quick %}<li>{{ x }}</li>{% endfor %}</ul><h3>Flashcards</h3>{% for q,a in note.flashcards %}<details class="flashcard"><summary>{{ q }}</summary><p>{{ a }}</p></details>{% endfor %}<p class="muted">Study note quality notice: this is a structured revision guide generated from the topic and subject. Verify exact syllabus coverage, formulas and exam scope with your official course material.</p></article>
+{% if extras %}<article class="note-card"><h2>Additional instructor content</h2>{% for e in extras %}<h3>{{ e.section_title }}</h3><p style="white-space:pre-wrap">{{ e.body }}</p>{% endfor %}</article>{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Reminders · EduAdapt{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><span class="eyebrow">Focus engine</span><h1>Study reminders</h1><p>Create repeating study alarms. This page checks your schedule every 10 seconds while EduAdapt is open.</p></div>
+  <div style="display:grid;gap:8px;justify-items:end">
+    <button class="btn primary" type="button" onclick="enableNotifications()">{{ icon('volume') }} Enable voice alarm</button>
+    <span class="perm" id="permStatus"><i></i><span>Checking…</span></span>
+  </div>
+</div>
+
+<div class="two-col">
+  <section class="panel">
+    <div class="panel-head"><h2>{{ icon('repeat') }} Create recurring reminder</h2></div>
+    <form method="post" action="{{ url_for('add_reminder') }}" class="form-grid">
+      <div class="field"><label for="title">Reminder title</label><input id="title" name="title" required maxlength="100" placeholder="DSA revision"></div>
+      <div class="field"><label for="remind_at">First reminder</label><input id="remind_at" type="datetime-local" name="remind_at" value="{{ default_start }}" required></div>
+      <div class="field"><label for="interval_minutes">Repeat interval</label>
+        <select id="interval_minutes" name="interval_minutes">
+          {% for v,l in [(15,'Every 15 minutes'),(30,'Every 30 minutes'),(45,'Every 45 minutes'),(60,'Every hour'),(90,'Every 90 minutes'),(120,'Every 2 hours'),(180,'Every 3 hours'),(360,'Every 6 hours'),(720,'Every 12 hours'),(1440,'Every day')] %}
+          <option value="{{ v }}" {{ 'selected' if v==60 }}>{{ l }}</option>{% endfor %}
+        </select></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn primary" type="submit">Create reminder</button>
+        <button class="btn secondary" type="button" onclick="testAlarm()">{{ icon('bell') }} Test alarm</button>
+      </div>
+    </form>
+    <div class="alarm-note">{{ icon('info') }}<span>Keep EduAdapt open in a browser tab. Voice alarms can’t run once the tab or browser is completely closed.</span></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>How the alarm works</h2></div>
+    <div class="feature-list">
+      <div>{{ icon('repeat') }}<span><b>Repeats on a schedule</b>Rings at the first time, then every interval after it.</span></div>
+      <div>{{ icon('volume') }}<span><b>Spoken prompt</b>Your browser reads the reminder title aloud.</span></div>
+      <div>{{ icon('bell') }}<span><b>Browser notification</b>Appears when you’ve allowed notifications.</span></div>
+      <div>{{ icon('alert') }}<span><b>Visual alarm</b>A full-screen study-time overlay appears on the site.</span></div>
+    </div>
+  </section>
+</div>
+
+<section class="panel" style="margin-top:20px">
+  <div class="panel-head"><h2>{{ icon('clock') }} Scheduled reminders</h2><span class="badge neutral">{{ items|length }} saved</span></div>
+  {% if items %}
+  <div>
+    {% for r, nxt in items %}
+    <div class="reminder-row">
+      <div class="reminder-icon">{{ icon('bell') }}</div>
+      <div><b>{{ r['title'] }}</b><small>Starts {{ r['remind_at']|dt }} · repeats every
+        {% set m = r['interval_minutes'] or 60 %}{% if m % 1440 == 0 %}{{ m // 1440 }} day{{ '' if m==1440 else 's' }}{% elif m % 60 == 0 %}{{ m // 60 }} hour{{ '' if m==60 else 's' }}{% else %}{{ m }} min{% endif %}</small></div>
+      <div class="reminder-next"><small>Next ring</small><b>{{ nxt.strftime('%d %b, %H:%M') if nxt else '—' }}</b></div>
+      <form method="post" action="{{ url_for('delete_reminder', reminder_id=r['id']) }}" onsubmit="return confirm('Delete this reminder?')"><button class="link-danger" type="submit" aria-label="Delete reminder">{{ icon('trash') }}</button></form>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">{{ icon('bell') }}<b>No reminders yet</b><span>Create your first recurring reminder above.</span></div>
+  {% endif %}
+</section>
+{% endblock %}

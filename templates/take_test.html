@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ topic['name'] }} test · EduAdapt{% endblock %}
+{% block content %}
+<div class="test-header">
+  <div class="row">
+    <div><span class="eyebrow">{{ topic['subject_name'] }}</span><h1>{{ topic['name'] }}</h1></div>
+    <div class="timer">{{ icon('clock') }}<span id="timerText">00:00</span></div>
+  </div>
+  <div class="tprog"><span id="answerLabel">0 / {{ questions|length }} answered</span><div class="progress thin"><i id="answerBar" style="width:0"></i></div></div>
+</div>
+
+<form method="post" id="testForm" class="questions">
+  <input type="hidden" name="started_at" value="{{ started_at }}">
+  {% for q in questions %}
+  <div class="question-card" id="q{{ loop.index }}">
+    <span class="question-no">Question {{ loop.index }} of {{ questions|length }}</span>
+    <h2>{{ q['question'] }}</h2>
+    {% for k in ['A','B','C','D'] %}
+    <label class="option"><input type="radio" name="q_{{ q['id'] }}" value="{{ k }}" {{ 'required' if k=='A' }}><span class="key">{{ k }}</span><span>{{ q['option_' ~ (k|lower)] }}</span></label>
+    {% endfor %}
+  </div>
+  {% endfor %}
+  <div class="submit-bar">
+    <span class="muted">All {{ questions|length }} questions are required. Your score sets your learning level.</span>
+    <button class="btn primary large" type="submit">Submit test {{ icon('arrow') }}</button>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}<script>startTestTimer();</script>{% endblock %}

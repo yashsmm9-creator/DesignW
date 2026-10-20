@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Syllabus · EduAdapt{% endblock %}
+{% block content %}
+<div class="page-head"><div><span class="eyebrow">Complete learning library</span><h1>Computer Engineering syllabus</h1>
+  <p>Topics organised across the FY, SY and TY curriculum and major program electives. Learn from a playlist or test yourself on any topic.</p></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn secondary small" type="button" onclick="document.querySelectorAll('details.subject').forEach(d=>d.open=true)">Expand all</button>
+    <button class="btn secondary small" type="button" onclick="document.querySelectorAll('details.subject').forEach(d=>d.open=false)">Collapse all</button>
+  </div></div>
+
+<div class="toolbar">
+  <div class="input-icon">{{ icon('search') }}<input id="filterQ" type="search" placeholder="Search topics or subjects…" aria-label="Search topics"></div>
+  <span class="count" id="filterCount"></span>
+</div>
+
+{% for s, topics in data %}
+<details class="subject" data-group>
+  <summary>
+    <span class="subject-no">{{ '%02d'|format(loop.index) }}</span>
+    <span class="subject-title"><h2>{{ s['name'] }}</h2><small>{{ s['description'] }}</small></span>
+    <span class="badge">{{ topics|length }} topics</span>{{ icon('chev', 'chev') }}
+  </summary>
+  <div class="topic-grid">
+    {% for t in topics %}{% set b = best.get(t['id']) %}
+    <div class="topic-tile" data-item="{{ t['name']|lower }}" data-subject="{{ s['name'] }}">
+      <b>{{ t['name'] }}</b>
+      <div class="row">
+        {% if b %}<span class="badge {{ 'success' if b['best'] >= 75 else 'warn' }}">Best {{ "%.0f"|format(b['best']) }}%</span>{% else %}<span class="badge neutral">Not attempted</span>{% endif %}
+        <div class="tile-actions">
+          <a href="{{ url_for('playlist', topic_id=t['id']) }}">{{ icon('play') }} Learn</a>
+          <a class="pri" href="{{ url_for('take_test', topic_id=t['id']) }}">Test</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</details>
+{% endfor %}
+<div class="empty no-results" id="noResults">{{ icon('search') }}<b>No topics match your search</b><span>Try a different keyword.</span></div>
+{% endblock %}

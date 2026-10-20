@@ -1,0 +1,4 @@
+Flask>=3.0,<4
+Flask-Login>=0.6.3,<0.7
+APScheduler>=3.10,<4
+python-dotenv>=1.0,<2

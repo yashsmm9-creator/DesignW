@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} · EduAdapt{% endblock %}
+{% block content %}
+<div class="error-page"><div>
+  <div class="code">{{ code }}</div>
+  <h1>{{ title }}</h1>
+  <p>{{ message }}</p>
+  <a class="btn primary large" href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('index') }}">{{ icon('home') }} Back to {{ 'dashboard' if current_user.is_authenticated else 'home' }}</a>
+</div></div>
+{% endblock %}

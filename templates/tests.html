@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Tests · EduAdapt{% endblock %}
+{% block content %}
+<div class="page-head"><div><span class="eyebrow">Computer Engineering assessment</span><h1>Topic tests</h1>
+  <p>Every topic has a 10-question assessment. Your score sets your understanding level and personalises your learning playlist.</p></div></div>
+
+<div class="toolbar">
+  <div class="input-icon">{{ icon('search') }}<input id="filterQ" type="search" placeholder="Search {{ total }} topics…" aria-label="Search topics"></div>
+  <select id="filterSubject" aria-label="Filter by subject"><option value="">All subjects</option>{% for name, _ in groups %}<option value="{{ name }}">{{ name }}</option>{% endfor %}</select>
+  <span class="count" id="filterCount"></span>
+</div>
+
+{% for name, topics in groups %}
+<section data-group>
+  <div class="test-group"><h2>{{ name }}</h2><span class="badge neutral">{{ topics|length }} topics</span></div>
+  <div class="test-grid">
+    {% for t in topics %}{% set b = best.get(t['id']) %}
+    <article class="test-card" data-item="{{ t['name']|lower }}" data-subject="{{ name }}">
+      <div class="meta">
+        <span class="badge neutral">{{ t['question_count'] }} questions</span>
+        {% if b %}<span class="badge {{ 'success' if b['best'] >= 75 else 'warn' }}">Best {{ "%.0f"|format(b['best']) }}% · {{ b['n'] }}×</span>{% endif %}
+      </div>
+      <h3>{{ t['name'] }}</h3>
+      <div class="foot">
+        <a class="btn primary small" href="{{ url_for('take_test', topic_id=t['id']) }}">{{ 'Retake' if b else 'Start test' }}</a>
+        <a class="btn secondary small" href="{{ url_for('playlist', topic_id=t['id']) }}">{{ icon('play') }} Learn</a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}
+<div class="empty no-results" id="noResults" style="margin-top:20px">{{ icon('search') }}<b>No topics match your search</b><span>Try a different keyword or subject.</span></div>
+{% endblock %}

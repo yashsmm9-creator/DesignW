@@ -1,0 +1,124 @@
+{% from "_macros.html" import icon %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#4f46e5">
+  <title>{% block title %}EduAdapt{% endblock %}</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%234f46e5'/%3E%3Cpath d='M12 26 32 16l20 10-20 10z' fill='%23fff'/%3E%3Cpath d='M20 33v9c0 3 5 6 12 6s12-3 12-6v-9l-12 6z' fill='%23fff' opacity='.85'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+<!-- Icon sprite (inline, no external dependency) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+  <symbol id="i-test" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3 1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="m19 15 .7 1.8 1.8.7-1.8.7L19 20l-.7-1.8-1.8-.7 1.8-.7z"/></symbol>
+  <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 8 5-3 5 3-1.5-8"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  <symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M10.6 6.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.2M6.6 6.6A17 17 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 4.3-1"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v5M12 18v.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M12 11v5"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></symbol>
+  <symbol id="i-repeat" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 22c4 0 7-2.8 7-7 0-3-1.8-5.2-3.5-7C14.700 6.800 14 5 14 2c-3 1.500-6 5-6 9-1-.8-1.500-2-1.500-3C4.500 10 5 12.500 5 15c0 4.200 3 7 7 7z"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+</defs></svg>
+
+{% set ep = request.endpoint or '' %}
+{% if current_user.is_authenticated %}
+<div class="mobilebar">
+  <div class="brand"><span class="brand-mark">{{ icon('cap') }}</span> EduAdapt</div>
+  <button class="icon-btn menu" type="button" aria-label="Open menu" data-nav-toggle>{{ icon('menu') }}</button>
+</div>
+<div class="scrim" data-nav-toggle></div>
+<aside class="sidebar" id="sidebar">
+  <a class="brand" href="{{ url_for('dashboard') }}"><span class="brand-mark">{{ icon('cap') }}</span> EduAdapt</a>
+  <nav aria-label="Main">
+    <div class="nav-label">Learn</div>
+    <a class="nav-link {{ 'active' if ep=='dashboard' }}" href="{{ url_for('dashboard') }}">{{ icon('home') }} Dashboard</a>
+    <a class="nav-link {{ 'active' if ep in ('subjects','playlist') }}" href="{{ url_for('subjects') }}">{{ icon('book') }} Syllabus</a>
+    <a class="nav-link {{ 'active' if ep in ('notes','note_detail') }}" href="{{ url_for('notes') }}">{{ icon('layers') }} Topic notes</a>
+    <a class="nav-link {{ 'active' if ep=='bookmarks' }}" href="{{ url_for('bookmarks') }}">{{ icon('book') }} Bookmarks</a>
+    <a class="nav-link {{ 'active' if ep=='formula_reference' }}" href="{{ url_for('formula_reference') }}">{{ icon('sparkles') }} Formula reference</a>
+    <a class="nav-link {{ 'active' if ep in ('tests','take_test','result') }}" href="{{ url_for('tests') }}">{{ icon('test') }} Tests</a>
+    <div class="nav-label">Plan</div>
+    <a class="nav-link {{ 'active' if ep=='targets' }}" href="{{ url_for('targets') }}">{{ icon('target') }} My Targets</a>
+    <a class="nav-link {{ 'active' if ep=='reminders' }}" href="{{ url_for('reminders') }}">{{ icon('bell') }} Reminders</a>
+    <div class="nav-label">Insights</div>
+    <a class="nav-link {{ 'active' if ep=='progress' }}" href="{{ url_for('progress') }}">{{ icon('chart') }} Progress</a>
+    <a class="nav-link {{ 'active' if ep=='profile' }}" href="{{ url_for('profile') }}">{{ icon('user') }} Profile</a>
+    {% if config.get('ADMIN_EMAIL') and current_user.email == config.get('ADMIN_EMAIL','').lower() %}<a class="nav-link {{ 'active' if ep=='admin' }}" href="{{ url_for('admin') }}">{{ icon('cpu') }} Content admin</a>{% endif %}
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar">{{ current_user.name[:1]|upper }}</div>
+    <div class="who"><strong>{{ current_user.name }}</strong><small>{{ current_user.email }}</small></div>
+    <a class="icon-btn" href="{{ url_for('logout') }}" title="Log out" aria-label="Log out">{{ icon('logout') }}</a>
+  </div>
+</aside>
+{% endif %}
+
+{% block public_nav %}{% endblock %}
+
+{% block flash_area %}
+{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}
+<div class="flash-stack" role="status" aria-live="polite">
+  {% for category, message in messages %}
+  <div class="flash {{ category }}" data-flash>
+    {{ icon('check' if category=='success' else ('alert' if category in ('error','danger') else 'info')) }}
+    <span>{{ message }}</span>
+    <button type="button" aria-label="Dismiss" data-flash-close>{{ icon('x') }}</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}{% endwith %}
+{% endblock %}
+
+<main class="{% if current_user.is_authenticated %}main-content{% else %}public-main{% endif %}">
+  {% block content %}{% endblock %}
+</main>
+
+{% block footer %}{% endblock %}
+
+{% if current_user.is_authenticated %}
+<div id="alarmOverlay" class="alarm-overlay" role="alertdialog" aria-labelledby="alarmTitle" aria-modal="true">
+  <div class="alarm-box">
+    <div class="alarm-icon">{{ icon('bell') }}</div>
+    <h2 id="alarmTitle">Study time!</h2>
+    <p id="alarmText">Your scheduled study session is starting.</p>
+    <a class="btn primary" href="{{ url_for('tests') }}" onclick="dismissAlarm()">Start studying</a>
+    <button class="btn ghost" type="button" onclick="dismissAlarm()">Dismiss</button>
+  </div>
+</div>
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Create account · EduAdapt{% endblock %}
+{% block flash_area %}{% endblock %}
+{% block content %}
+<div class="auth">
+  <aside class="auth-side">
+    <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark">{{ icon('cap') }}</span> EduAdapt</a>
+    <div>
+      <h2>Your adaptive learning journey starts here.</h2>
+      <div class="auth-points">
+        <div>{{ icon('check') }}<span>Full Computer Engineering syllabus, topic by topic</span></div>
+        <div>{{ icon('check') }}<span>Instant scoring with explanations</span></div>
+        <div>{{ icon('check') }}<span>Free to use — no card required</span></div>
+      </div>
+    </div>
+    <small>Adaptive study platform for Computer Engineering</small>
+  </aside>
+  <section class="auth-main"><div class="auth-card">
+    <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark">{{ icon('cap') }}</span> EduAdapt</a>
+    <h1>{% if otp_stage %}Verify your email{% else %}Create your account{% endif %}</h1>
+    <p class="muted">{% if otp_stage %}Enter the 6-digit code sent to {{ form.get('email', 'your email') }}. Your account is created only after verification.{% else %}Verify your email to activate your account. Daily target reminders can be sent to WhatsApp.{% endif %}</p><p class="muted" style="font-size:.82rem">Password security: 8+ characters, uppercase and lowercase letters, a number and a symbol. Repeated failed logins are temporarily restricted.</p>
+    <div class="auth-flash">
+      {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}
+      <div class="flash {{ category }}">{{ icon('check' if category=='success' else 'alert') }}<span>{{ message }}</span></div>
+      {% endfor %}{% endwith %}
+    </div>
+    {% if otp_stage %}
+    {% if development_otp %}
+    <div class="flash warning" role="status" style="margin: 12px 0;">Local development OTP: <strong>{{ development_otp }}</strong>. Configure SMTP to send OTPs by email. This fallback is disabled in production.</div>
+    {% endif %}
+    <form method="post" class="form-grid" autocomplete="one-time-code">
+      <input type="hidden" name="stage" value="verify_email_otp">
+      <div class="field"><label for="otp">Email verification code</label>
+        <input id="otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required autofocus placeholder="Enter 6-digit code"></div>
+      <button class="btn primary large full" type="submit">Verify email &amp; create account</button>
+    </form>
+    {% else %}
+    <form method="post" class="form-grid">
+      <input type="hidden" name="stage" value="details">
+      <div class="field"><label for="name">Full name</label>
+        <div class="input-icon">{{ icon('user') }}<input id="name" name="name" value="{{ form.get('name','') }}" required autofocus placeholder="Your name" autocomplete="name"></div></div>
+      <div class="field"><label for="email">Email</label>
+        <div class="input-icon">{{ icon('mail') }}<input id="email" type="email" name="email" value="{{ form.get('email','') }}" required placeholder="you@example.com" autocomplete="email"></div></div>
+      <div class="field"><label for="phone">WhatsApp mobile number</label>
+        <div class="input-icon">{{ icon('user') }}<input id="phone" type="tel" name="phone" value="{{ form.get('phone','') }}" required inputmode="tel" pattern="[+0-9() -]{10,20}" placeholder="+91 98765 43210" autocomplete="tel"></div>
+        <small class="muted">Include your country code if outside India. Used for your study reminders on WhatsApp.</small></div>
+      <div class="field"><label for="password">Password</label>
+        <div class="pw"><input id="password" type="password" name="password" minlength="8" required pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}" title="Use 8+ characters with uppercase, lowercase, number and symbol" placeholder="8+ chars, upper/lowercase, number & symbol" autocomplete="new-password">
+          <button type="button" data-toggle-pw aria-label="Show password">{{ icon('eye') }}</button></div></div>
+      <div class="field"><label for="confirm">Confirm password</label>
+        <div class="pw"><input id="confirm" type="password" name="confirm" minlength="8" required placeholder="Repeat your password" autocomplete="new-password">
+          <button type="button" data-toggle-pw aria-label="Show password">{{ icon('eye') }}</button></div></div>
+      <button class="btn primary large full" type="submit">Send email verification code</button>
+    </form>
+    {% endif %}
+    <p class="auth-link">Already registered? <a href="{{ url_for('login') }}">Log in</a></p>
+  </div></section>
+</div>
+{% endblock %}
