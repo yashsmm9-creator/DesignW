@@ -17,7 +17,7 @@ except ImportError:
     pass
 
 from flask import (Flask, render_template, redirect, url_for, request, flash,
-                   jsonify, abort, session)
+                   jsonify, abort, session, send_from_directory)
 from flask_login import (LoginManager, UserMixin, login_user, login_required,
                          logout_user, current_user)
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -53,8 +53,9 @@ def _load_secret_key():
 app = Flask(__name__)
 app.config['SECRET_KEY'] = _load_secret_key()
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['SESSION_COOKIE_SECURE'] = os.environ.get('COOKIE_SECURE', '0') == '1'
+cookie_secure = os.environ.get('COOKIE_SECURE', '0') == '1'
+app.config['SESSION_COOKIE_SAMESITE'] = 'None' if cookie_secure else 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = cookie_secure
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=8)
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
 app.config['ADMIN_EMAIL'] = os.environ.get('ADMIN_EMAIL', '').strip().lower()
@@ -67,10 +68,9 @@ def add_security_headers(response):
     response.headers.setdefault('X-Content-Type-Options', 'nosniff')
     if request.endpoint in ('dashboard','notes','note_detail','bookmarks','progress','profile','admin'):
         response.headers.setdefault('Cache-Control','no-store, private')
-    response.headers.setdefault('X-Frame-Options', 'DENY')
     response.headers.setdefault('Referrer-Policy', 'strict-origin-when-cross-origin')
     response.headers.setdefault('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
-    response.headers.setdefault('Content-Security-Policy', "default-src 'self' https: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-ancestors 'none'")
+    response.headers.setdefault('Content-Security-Policy', "default-src 'self' https: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self' 'unsafe-inline'; img-src 'self' data: https:")
     if request.is_secure:
         response.headers.setdefault('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
     return response
@@ -1148,6 +1148,18 @@ def progress():
     return render_template('progress.html', attempts=attempts, topic_summary=summary, chart=chart)
 
 
+# ------------------------------------------------------------ Hosting endpoints
+@app.get('/_app/health')
+def app_health():
+    return '', 204
+
+
+@app.get('/manus-routes.json')
+def manus_routes():
+    return send_from_directory(os.path.join(BASE_DIR, 'public'), 'manus-routes.json',
+                               mimetype='application/json')
+
+
 # ------------------------------------------------------------------ Error pages
 @app.errorhandler(404)
 def not_found(_e):
@@ -1173,5 +1185,5 @@ if __name__ == '__main__':
         app.logger.info('WhatsApp target reminder scheduler started (checks every minute).')
     except ImportError:
         app.logger.warning('APScheduler is not installed; WhatsApp reminders are disabled. Run pip install -r requirements.txt.')
-    app.run(host='127.0.0.1', port=int(os.environ.get('PORT', 5000)),
+    app.run(host=os.environ.get('HOST', '127.0.0.1'), port=int(os.environ.get('PORT', 5000)),
             debug=os.environ.get('FLASK_DEBUG', '1') == '1', use_reloader=False)

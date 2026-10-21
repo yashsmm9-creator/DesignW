@@ -19,6 +19,13 @@ class EduAdaptSmokeTests(unittest.TestCase):
         edu.DB = self.old_db
         self.tempdir.cleanup()
 
+    def test_health_and_route_manifest(self):
+        self.assertEqual(self.client.get('/_app/health').status_code, 204)
+        with self.client.get('/manus-routes.json') as response:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.mimetype, 'application/json')
+            self.assertIn('/reset-password/:token', [route['path'] for route in response.get_json()['routes']])
+
     def register_and_login(self):
         response = self.client.post('/register', data={
             'name': 'Test Student', 'email': 'student@example.com',
@@ -26,7 +33,7 @@ class EduAdaptSmokeTests(unittest.TestCase):
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         import re
-        match = re.search(rb'Local development code: <b>([0-9]{6})</b>', response.data)
+        match = re.search(rb'Local development OTP: <strong>([0-9]{6})</strong>', response.data)
         self.assertIsNotNone(match, response.data[:1200])
         c = edu.get_db()
         self.assertIsNone(c.execute('SELECT id FROM users WHERE email=?', ('student@example.com',)).fetchone())

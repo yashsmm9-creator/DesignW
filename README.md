@@ -64,7 +64,7 @@ The interface now uses an original, high-contrast tech editorial style inspired 
 ### Sign-up and login
 - During registration, the student enters name, email, WhatsApp number, and password.
 - EduAdapt emails a six-digit verification code. The account is **not created until the code is verified**. The code expires after five minutes and is limited to five attempts.
-- The OTP is never displayed in the webpage or stored in the signup session as plain text. If SMTP is missing or email delivery fails, registration stops and shows a configuration/delivery error; no account is created.
+- In local development only, when SMTP is not configured, the app displays a development OTP in the verification page. In production (`FLASK_ENV=production`), missing or failed SMTP delivery stops registration and does not expose the code; no account is created.
 - After verification, login asks for **email and password only**; no OTP or phone number is requested at login.
 
 Configure email delivery with environment variables before launching:
@@ -87,3 +87,7 @@ Configure email delivery with environment variables before launching:
 - WhatsApp reminders are server-side; the website does not need to remain open in the student's browser, but the EduAdapt server must be running.
 
 Use HTTPS and a strong `SECRET_KEY` in production. Keep SMTP and Twilio credentials out of source control. The demo account (`demo@eduadapt.com` / `Demo@12345`) remains available for local UI demonstrations; it is pre-seeded and does not need registration OTP.
+
+### Container deployment notes
+
+The Flask container serves the existing app through Gunicorn on `PORT` (default `3000`). It uses SQLite in `database.db`; container filesystems are ephemeral, so this deployment is suitable for demos but user accounts, targets, and study history are not guaranteed to survive a container replacement. Configure durable database storage before relying on saved user data. The Gunicorn web process does not launch the WhatsApp scheduler; hosted reminder delivery requires Twilio settings and one separate scheduler/worker.

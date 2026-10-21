@@ -1,0 +1,24 @@
+{
+  "routes": [
+    {"path": "/", "title": "EduAdapt home"},
+    {"path": "/register", "title": "Create account"},
+    {"path": "/login", "title": "Log in"},
+    {"path": "/dashboard", "title": "Dashboard"},
+    {"path": "/targets", "title": "Study targets"},
+    {"path": "/reminders", "title": "Reminders"},
+    {"path": "/forgot-password", "title": "Forgot password"},
+    {"path": "/reset-password/:token", "title": "Reset password"},
+    {"path": "/notes/:topic_id", "title": "Topic notes"},
+    {"path": "/bookmarks", "title": "Bookmarks"},
+    {"path": "/formula-reference", "title": "Formula reference"},
+    {"path": "/profile", "title": "Profile"},
+    {"path": "/admin", "title": "Content admin"},
+    {"path": "/subjects", "title": "Subjects"},
+    {"path": "/notes", "title": "Study notes"},
+    {"path": "/tests", "title": "Tests"},
+    {"path": "/test/:topic_id", "title": "Topic test"},
+    {"path": "/result/:attempt_id", "title": "Test result"},
+    {"path": "/playlist/:topic_id", "title": "Study playlist"},
+    {"path": "/progress", "title": "Progress"}
+  ]
+}
